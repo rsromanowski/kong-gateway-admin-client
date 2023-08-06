@@ -1,0 +1,13 @@
+# Gradle project-specific cache directory
+.gradle
+
+# Gradle build output directories
+**/build/
+!src/**/build/
+
+# IDE/OS stuff
+.idea
+**/.DS_Store
+
+# Package Files
+*.jar
