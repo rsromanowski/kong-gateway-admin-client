@@ -4,8 +4,10 @@ import io.github.rsromanowski.model.Certificate
 import io.github.rsromanowski.model.Consumer
 import io.github.rsromanowski.model.CreateConsumer
 import io.github.rsromanowski.model.Information
+import io.github.rsromanowski.model.KongTag
 import io.github.rsromanowski.model.Service
 import io.github.rsromanowski.model.Status
+import io.github.rsromanowski.model.Tag
 import java.util.UUID
 
 interface Kong {
@@ -27,5 +29,8 @@ interface Kong {
     suspend fun createService()
     suspend fun createConsumer(request: CreateConsumer): Consumer
     suspend fun deleteConsumer(id: UUID)
+
+    suspend fun tags(): List<KongTag>
+    suspend fun tags(tag: Tag): List<KongTag>
 }
 

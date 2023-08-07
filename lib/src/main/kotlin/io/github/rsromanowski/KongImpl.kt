@@ -5,9 +5,11 @@ import io.github.rsromanowski.model.Consumer
 import io.github.rsromanowski.model.CreateConsumer
 import io.github.rsromanowski.model.Endpoints
 import io.github.rsromanowski.model.Information
+import io.github.rsromanowski.model.KongTag
 import io.github.rsromanowski.model.PaginatedResponse
 import io.github.rsromanowski.model.Service
 import io.github.rsromanowski.model.Status
+import io.github.rsromanowski.model.Tag
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -57,6 +59,10 @@ internal class KongImpl(kongConfig: KongConfig) : Kong {
     override suspend fun deleteConsumer(id: UUID) {
         delete("/consumers/$id")
     }
+
+    override suspend fun tags() : List<KongTag> = get("/tags").body<PaginatedResponse<KongTag>>().data
+    override suspend fun tags(tag : Tag) : List<KongTag> = get("/tags/${tag.value}")
+        .body<PaginatedResponse<KongTag>>().data
 
     override suspend fun certificates() : List<Certificate> {
         return get("/certificates").body<PaginatedResponse<Certificate>>().data

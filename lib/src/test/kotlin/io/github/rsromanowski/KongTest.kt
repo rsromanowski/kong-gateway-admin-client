@@ -2,33 +2,12 @@ package io.github.rsromanowski
 
 import io.github.rsromanowski.model.CreateConsumer
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@TestInstance(Lifecycle.PER_CLASS)
-class KongTest {
+class KongTest : BaseIntegrationTest() {
     private val localhost = "http://localhost:8001"
-
-    @BeforeAll fun setup() {
-        val script = javaClass.classLoader.resources("kong-docker.sh").findFirst().map { it.file }.orElseThrow()
-
-        ProcessBuilder()
-            .command(script)
-            .start()
-            .waitFor(1L, TimeUnit.MINUTES)
-    }
-    @AfterAll fun cleanup() {
-        ProcessBuilder()
-            .command(javaClass.classLoader.resources("kong-docker-cleanup.sh").findFirst().map { it.file }.orElseThrow())
-//            .start()
-//            .waitFor(10L, TimeUnit.SECONDS)
-    }
 
     @Test fun validateClientCreation() {
         val kong = Kong.create(KongConfig(localhost))
@@ -37,7 +16,6 @@ class KongTest {
         runBlocking { kong.status().also { println(it) } }
         runBlocking { kong.services().also { println(it) } }
         runBlocking { kong.certificates().also { println(it) } }
-
     }
 
     @Test fun createConsumer() {
@@ -56,14 +34,3 @@ class KongTest {
     }
 }
 
-class KongWorkspaceTest {
-    @Test fun noWorkspace() {
-        val kong = Kong.create(KongConfig("http://localhost:8001"))
-        assertEquals("http://localhost:8001", kong.baseUrl)
-    }
-
-    @Test fun withWorkspace() {
-        val kong = Kong.create(KongConfig("http://localhost:8001", "workspace"))
-        assertEquals("http://localhost:8001/workspace", kong.baseUrl)
-    }
-}
