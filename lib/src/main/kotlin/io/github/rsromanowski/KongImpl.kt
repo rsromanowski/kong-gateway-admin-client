@@ -24,7 +24,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import java.util.UUID
 
-internal class KongImpl(private val kongConfig: KongConfig) : Kong {
+internal class KongImpl(kongConfig: KongConfig) : Kong {
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -62,10 +62,11 @@ internal class KongImpl(private val kongConfig: KongConfig) : Kong {
         return get("/certificates").body<PaginatedResponse<Certificate>>().data
     }
 
-    private suspend fun get(path: String) = client.get("${kongConfig.address}$path")
+    override val baseUrl = "${kongConfig.address}${kongConfig.workspace?.let { "/$it" } ?: ""}"
+    private suspend fun get(path: String) = client.get("$baseUrl$path")
     private suspend fun post(
         path : String,
         block : HttpRequestBuilder.() -> Unit,
-    ) = client.post("${kongConfig.address}$path", block).also { println("${it.status} ${it.bodyAsText()}") }
-    private suspend fun delete(path: String) = client.delete("${kongConfig.address}$path")
+    ) = client.post("$baseUrl$path", block).also { println("${it.status} ${it.bodyAsText()}") }
+    private suspend fun delete(path: String) = client.delete("$baseUrl$path")
 }

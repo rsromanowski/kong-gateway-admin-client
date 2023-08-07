@@ -55,3 +55,15 @@ class KongTest {
         assertEquals(consumers.size, newConsumers.size + 1, "Expected one less consumer")
     }
 }
+
+class KongWorkspaceTest {
+    @Test fun noWorkspace() {
+        val kong = Kong.create(KongConfig("http://localhost:8001"))
+        assertEquals("http://localhost:8001", kong.baseUrl)
+    }
+
+    @Test fun withWorkspace() {
+        val kong = Kong.create(KongConfig("http://localhost:8001", "workspace"))
+        assertEquals("http://localhost:8001/workspace", kong.baseUrl)
+    }
+}

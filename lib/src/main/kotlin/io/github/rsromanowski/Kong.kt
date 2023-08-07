@@ -15,6 +15,8 @@ interface Kong {
         }
     }
 
+    val baseUrl: String
+
     suspend fun information(): Information
     suspend fun status(): Status
     suspend fun endpoints(): List<String>
