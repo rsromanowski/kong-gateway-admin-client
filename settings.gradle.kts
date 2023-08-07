@@ -1,2 +1,2 @@
-rootProject.name = "kong-gateway-admin-client"
+rootProject.name = "kong-gateway-client"
 include("lib")
