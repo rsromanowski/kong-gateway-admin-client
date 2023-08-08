@@ -3,6 +3,7 @@ package io.github.rsromanowski
 import io.github.rsromanowski.model.Certificate
 import io.github.rsromanowski.model.Consumer
 import io.github.rsromanowski.model.CreateConsumer
+import io.github.rsromanowski.model.CreateService
 import io.github.rsromanowski.model.Endpoints
 import io.github.rsromanowski.model.Information
 import io.github.rsromanowski.model.KongTag
@@ -19,7 +20,7 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -37,16 +38,26 @@ internal class KongImpl(kongConfig: KongConfig) : Kong {
         }
     }
 
+    override val baseUrl = "${kongConfig.address}${kongConfig.workspace?.let { "/$it" } ?: "" }"
+
     override suspend fun information() : Information = get("/").body()
     override suspend fun status() : Status = get("/status").body()
     override suspend fun endpoints() : List<String> = get("/endpoints").body<Endpoints>().data
     override suspend fun services() : List<Service> = get("/services").body<PaginatedResponse<Service>>().data
-    override suspend fun consumers() : List<Consumer> {
-        return get("/consumers").also { println(it.status) }.body<PaginatedResponse<Consumer>>().data
+    override suspend fun consumers() : List<Consumer> = get("/consumers").body<PaginatedResponse<Consumer>>().data
+
+    override suspend fun createService(request : CreateService): Service {
+        return post("/services") {
+            setBody(request)
+            contentType(ContentType.Application.Json)
+        }.body()
     }
 
-    override suspend fun createService() {
-        TODO("Not yet implemented")
+    override suspend fun createService(request : CreateService, certificate : String): Service {
+        return post("/certificates/$certificate/services") {
+            setBody(request)
+            contentType(ContentType.Application.Json)
+        }.body()
     }
 
     override suspend fun createConsumer(request : CreateConsumer): Consumer {
@@ -68,11 +79,11 @@ internal class KongImpl(kongConfig: KongConfig) : Kong {
         return get("/certificates").body<PaginatedResponse<Certificate>>().data
     }
 
-    override val baseUrl = "${kongConfig.address}${kongConfig.workspace?.let { "/$it" } ?: ""}"
-    private suspend fun get(path: String) = client.get("$baseUrl$path")
+    private suspend fun get(path: String) : HttpResponse = client.get("$baseUrl$path")
+
     private suspend fun post(
         path : String,
         block : HttpRequestBuilder.() -> Unit,
-    ) = client.post("$baseUrl$path", block).also { println("${it.status} ${it.bodyAsText()}") }
+    ) = client.post("$baseUrl$path", block)
     private suspend fun delete(path: String) = client.delete("$baseUrl$path")
 }

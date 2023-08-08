@@ -3,6 +3,7 @@ package io.github.rsromanowski
 import io.github.rsromanowski.model.Certificate
 import io.github.rsromanowski.model.Consumer
 import io.github.rsromanowski.model.CreateConsumer
+import io.github.rsromanowski.model.CreateService
 import io.github.rsromanowski.model.Information
 import io.github.rsromanowski.model.KongTag
 import io.github.rsromanowski.model.Service
@@ -26,7 +27,9 @@ interface Kong {
     suspend fun certificates(): List<Certificate>
     suspend fun consumers(): List<Consumer>
 
-    suspend fun createService()
+    suspend fun createService(request: CreateService): Service
+    suspend fun createService(request: CreateService, certificate: String): Service
+
     suspend fun createConsumer(request: CreateConsumer): Consumer
     suspend fun deleteConsumer(id: UUID)
 

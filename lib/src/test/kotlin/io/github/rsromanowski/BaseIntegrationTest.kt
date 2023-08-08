@@ -17,7 +17,7 @@ abstract class BaseIntegrationTest {
             .waitFor(1L, TimeUnit.MINUTES)
     }
 
-    @AfterAll
+    //@AfterAll
     fun cleanup() {
         val script = javaClass.classLoader.resources("kong-docker-cleanup.sh").findFirst()
             .map { it.file }.orElseThrow()
